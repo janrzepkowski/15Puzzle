@@ -1,4 +1,10 @@
 class Puzzle:
+
+    UP = (-1, 0)
+    DOWN = (1, 0)
+    LEFT = (0, -1)
+    RIGHT = (0, 1)
+
     def __init__(self, board):
         self.board = board
         self.rows = len(board)
@@ -16,7 +22,6 @@ class Puzzle:
         return puzzle_string
 
     def generate_final_board(self):
-
         final_board = []
         new_row = []
 
@@ -30,11 +35,35 @@ class Puzzle:
 
         return final_board
 
-    def swap(self, x1, y1, x2, y2):
-        puzzle_copy = [list(row) for row in self.board]
-        puzzle_copy[x1][y1], puzzle_copy[x2][y2] = puzzle_copy[x2][y2], puzzle_copy[x1][y1]
+    def get_moves(self):
+        moves = []
+        i, j = self.get_coordinates(0)
+        if i > 0:
+            moves.append("U")
+        if j < self.columns - 1:
+            moves.append("R")
+        if j > 0:
+            moves.append("L")
+        if i < self.rows - 1:
+            moves.append("D")
+        return moves
 
-        return puzzle_copy
+    def move(self, option):
+        if option == "U":
+            direction = self.UP
+        if option == "D":
+            direction = self.DOWN
+        if option == "L":
+            direction = self.LEFT
+        if option == "R":
+            direction = self.RIGHT
+        new_blank = (self.get_coordinates(0)[0] + direction[0], self.get_coordinates(0)[1] + direction[1])
+        if option not in self.get_moves():
+            return False
+
+        self.board[self.get_coordinates(0)[0]][self.get_coordinates(0)[1]] = self.board[new_blank[0]][new_blank[1]]
+        self.board[new_blank[0]][new_blank[1]] = 0
+        return True
 
     @staticmethod
     def is_odd(num):
@@ -48,26 +77,17 @@ class Puzzle:
         zero_row, _ = self.get_coordinates(0)
         return self.rows - zero_row
 
-    def get_coordinates(self, cell, board=None):
+    def get_coordinates(self, value, board=None):
         if not board:
             board = self.board
 
         for i in range(self.rows):
             for j in range(self.columns):
-                if board[i][j] == cell:
+                if board[i][j] == value:
                     return i, j
 
         return RuntimeError('Invalid tile value')
 
-    '''
-    Inwersja to para dwóch liczb i i j takich, że i występuje później niż j w kolejności,
-    w której powinny się pojawić, ale i jest mniejsze od j. Na przykład:
-    5 6 7
-    1 2 3
-    4 0 8
-    Mamy 3 inwersje: (1, 5), (2, 5), i (3, 5),
-    gdyż 1, 2, i 3 powinny wystąpić przed 5, ale nie są.
-    '''
     def get_inversions(self):
         inversions = 0
         puzzle_list = [number for row in self.board for number in row if number != 0]
@@ -79,43 +99,30 @@ class Puzzle:
 
         return inversions
 
-    def get_moves(self):
-        moves = []
-        i, j = self.get_coordinates(0)  # blank space
+    def is_solved(self):
+        if self.heuristic_hamming() > 0:
+            return False
+        else:
+            return True
 
-        if i > 0:
-            moves.append(Puzzle(self.swap(i, j, i - 1, j)))  # move up
-
-        if j < self.columns - 1:
-            moves.append(Puzzle(self.swap(i, j, i, j + 1)))  # move right
-
-        if j > 0:
-            moves.append(Puzzle(self.swap(i, j, i, j - 1)))  # move left
-
-        if i < self.rows - 1:
-            moves.append(Puzzle(self.swap(i, j, i + 1, j)))  # move down
-
-        return moves
-
-    def heuristic_misplaced(self):
-        misplaced = 0
-
+    def heuristic_manhattan(self):
+        distance = 0
         for i in range(self.rows):
             for j in range(self.columns):
-                if self.board[i][j] != self.final_board[i][j]:
+                if self.board[i][j] != 0:
+                    i1, j1 = self.get_coordinates(self.board[i][j], self.final_board)
+                    distance += abs(i - i1) + abs(j - j1)
+
+        return distance
+
+    def heuristic_hamming(self):
+        misplaced = 0
+        for i in range(self.rows):
+            for j in range(self.columns):
+                if self.board[i][j] != 0 and self.board[i][j] != self.final_board[i][j]:
                     misplaced += 1
 
         return misplaced
-
-    def heuristic_manhattan_distance(self):
-        distance = 0
-
-        for i in range(self.rows):
-            for j in range(self.columns):
-                i1, j1 = self.get_coordinates(self.board[i][j], self.final_board)
-                distance += abs(i - i1) + abs(j - j1)
-
-        return distance
 
     def is_solvable(self):
         """
@@ -139,3 +146,6 @@ class Puzzle:
             return True
         else:
             return False
+
+    def copy(self):
+        return Puzzle([row[:] for row in self.board])
