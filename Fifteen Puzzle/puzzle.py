@@ -1,3 +1,5 @@
+import copy
+
 class Puzzle:
 
     UP = (-1, 0)
@@ -5,11 +7,19 @@ class Puzzle:
     LEFT = (0, -1)
     RIGHT = (0, 1)
 
-    def __init__(self, board):
+    def __init__(self, board, strategy):
         self.board = board
         self.rows = len(board)
         self.columns = len(board[0])
         self.final_board = self.generate_final_board()
+        self.last_move = None
+        if strategy == "manh" or strategy == "hammmanh":  # tylko jesli A*
+            self.strategy = "LURD"  # na sztywno daje wybrana permutacje
+            self.heuristic = strategy
+        else:
+            self.strategy = strategy
+            self.heuristic = None
+        self.neighbors = []
 
     def __str__(self):
         puzzle_string = ''
@@ -20,6 +30,20 @@ class Puzzle:
             puzzle_string += '\n'
 
         return puzzle_string
+
+    def __copy__(self):
+        new_puzzle = copy.deepcopy(self.board)
+        new_instance = Puzzle(new_puzzle, self.strategy)
+        new_instance.last_move = self.last_move
+        new_instance.priority = self.strategy
+        new_instance.heuristic = self.heuristic
+        return new_instance
+
+    def __hash__(self):
+        return hash(tuple(self.board))
+
+    def get_neighbors(self):
+        return self.neighbors
 
     def generate_final_board(self):
         final_board = []
@@ -35,49 +59,35 @@ class Puzzle:
 
         return final_board
 
-    def get_moves(self):
-        moves = []
-        i, j = self.get_coordinates(0)
-        if i > 0:
-            moves.append("U")
-        if j < self.columns - 1:
-            moves.append("R")
-        if j > 0:
-            moves.append("L")
-        if i < self.rows - 1:
-            moves.append("D")
-        return moves
+    def move(self):
+        i, j = self.get_coords(0)
+        for move in self.strategy:
+            if move == "U" and self.last_move != "D" and i > 0:
+                self.neighbors.append(self.swap(move))
+            elif move == "L" and self.last_move != "R" and j > 0:
+                self.neighbors.append(self.swap(move))
+            elif move == "D" and self.last_move != "U" and i < self.rows - 1:
+                self.neighbors.append(self.swap(move))
+            elif move == "R" and self.last_move != "L" and j < self.columns - 1:
+                self.neighbors.append(self.swap(move))
 
-    def move(self, option):
-        if option == "U":
-            direction = self.UP
-        if option == "D":
-            direction = self.DOWN
-        if option == "L":
-            direction = self.LEFT
-        if option == "R":
-            direction = self.RIGHT
-        new_blank = (self.get_coordinates(0)[0] + direction[0], self.get_coordinates(0)[1] + direction[1])
-        if option not in self.get_moves():
-            return False
+    def swap(self, move):
+        n = self.__copy__() # n wzielo sie od new puzzle zeby bylo krocej xd
+        n.last_move = move
+        if move == "U":
+            direction = n.UP
+        elif move == "D":
+            direction = n.DOWN
+        elif move == "R":
+            direction = n.RIGHT
+        elif move == "L":
+            direction = n.LEFT
+        new_blank = (n.get_coords(0)[0] + direction[0], n.get_coords(0)[1] + direction[1])
+        n.board[n.get_coords(0)[0]][n.get_coords(0)[1]] = n.board[new_blank[0]][new_blank[1]]
+        n.board[new_blank[0]][new_blank[1]] = 0
+        return n
 
-        self.board[self.get_coordinates(0)[0]][self.get_coordinates(0)[1]] = self.board[new_blank[0]][new_blank[1]]
-        self.board[new_blank[0]][new_blank[1]] = 0
-        return True
-
-    @staticmethod
-    def is_odd(num):
-        return num % 2 != 0
-
-    @staticmethod
-    def is_even(num):
-        return num % 2 == 0
-
-    def get_blank_space_row_counting_from_bottom(self):
-        zero_row, _ = self.get_coordinates(0)
-        return self.rows - zero_row
-
-    def get_coordinates(self, value, board=None):
+    def get_coords(self, value, board=None):
         if not board:
             board = self.board
 
@@ -88,29 +98,15 @@ class Puzzle:
 
         return RuntimeError('Invalid tile value')
 
-    def get_inversions(self):
-        inversions = 0
-        puzzle_list = [number for row in self.board for number in row if number != 0]
-
-        for i in range(len(puzzle_list)):
-            for j in range(i + 1, len(puzzle_list)):
-                if puzzle_list[i] > puzzle_list[j]:
-                    inversions += 1
-
-        return inversions
-
     def is_solved(self):
-        if self.heuristic_hamming() > 0:
-            return False
-        else:
-            return True
+        return self.board == self.final_board
 
     def heuristic_manhattan(self):
         distance = 0
         for i in range(self.rows):
             for j in range(self.columns):
                 if self.board[i][j] != 0:
-                    i1, j1 = self.get_coordinates(self.board[i][j], self.final_board)
+                    i1, j1 = self.get_coords(self.board[i][j], self.final_board)
                     distance += abs(i - i1) + abs(j - j1)
 
         return distance
@@ -123,29 +119,3 @@ class Puzzle:
                     misplaced += 1
 
         return misplaced
-
-    def is_solvable(self):
-        """
-         1. If N is odd, then puzzle instance is solvable if number of inversions is even in the input state.
-         2. If N is even, puzzle instance is solvable if
-            - the blank is on an even row counting from the bottom (second-last, fourth-last, etc.)
-              and number of inversions is odd.
-            - the blank is on an odd row counting from the bottom (last, third-last, fifth-last, etc.)
-            and number of inversions is even.
-         3. For all other cases, the puzzle instance is not solvable.
-        """
-
-        inversions_count = self.get_inversions()
-        blank_position = self.get_blank_space_row_counting_from_bottom()
-
-        if self.is_odd(self.rows) and self.is_even(inversions_count):
-            return True
-        elif self.is_even(self.rows) and self.is_even(blank_position) and self.is_odd(inversions_count):
-            return True
-        elif self.is_even(self.rows) and self.is_odd(blank_position) and self.is_even(inversions_count):
-            return True
-        else:
-            return False
-
-    def copy(self):
-        return Puzzle([row[:] for row in self.board])

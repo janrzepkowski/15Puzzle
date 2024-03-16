@@ -1,50 +1,47 @@
 from collections import deque
 import time
 
-class BFS:
+
+class Bfs:
     def __init__(self, puzzle):
         self.puzzle = puzzle
+        self.visited_states = 1
+        self.processed_states = 0
+        self.elapsed_time = 0
+        self.max_recursion_depth = 0
+        self.visited = set()
 
-    def solve(self, search_order):
+    def solve(self):
         start_time = time.time()
         queue = deque([(self.puzzle, [])])  # Kolejka przechowująca układanki i ich ścieżki
-        visited = set()  # Zbiór odwiedzonych układanek
-        max_recursion_depth = 0  # Maksymalna osiągnięta głębokość rekursji
+        self.visited.add(tuple(map(tuple, self.puzzle.board)))
 
         while queue:
             current_puzzle, path = queue.popleft()  # Pobranie pierwszego elementu z kolejki
-            visited.add(tuple(map(tuple, current_puzzle.board)))  # Dodanie układanki do odwiedzonych
+            self.processed_states += 1
 
-            if len(path) > max_recursion_depth:
-                max_recursion_depth = len(path)
+            if len(path) > self.max_recursion_depth:
+                self.max_recursion_depth = len(path)
 
             if current_puzzle.is_solved():
                 end_time = time.time()
-                elapsed_time = end_time - start_time
+                self.elapsed_time = end_time - start_time
                 return {
                     "path_length": len(path),
-                    "visited_states": len(visited),
-                    "processed_states": len(visited) + len(queue),
-                    "max_recursion_depth": max_recursion_depth,
-                    "elapsed_time": elapsed_time,
+                    "visited_states": self.visited_states,
+                    "processed_states": self.processed_states,
+                    "max_recursion_depth": self.max_recursion_depth,
+                    "elapsed_time": self.elapsed_time,
                     "solution": path
                 }  # Jeśli układanka jest rozwiązana, zwróć dodatkowe informacje
-
-            for move in search_order:  # Loop through the specified search order
-                new_puzzle = current_puzzle.copy()  # Utworzenie kopii układanki
-                new_puzzle.move(move)  # Wykonanie ruchu
-
+            current_puzzle.move()
+            for neighbor in current_puzzle.get_neighbors():  # Loop through the specified search order
                 # Sprawdzenie czy nowa układanka nie została wcześniej odwiedzona
-                if tuple(map(tuple, new_puzzle.board)) not in visited:
-                    queue.append((new_puzzle, path + [move]))  # Dodanie układanki i jej ścieżki do kolejki
+                if tuple(map(tuple, neighbor.board)) not in self.visited:
+                    self.visited.add(tuple(map(tuple, neighbor.board)))
+                    queue.append((neighbor, path + [neighbor.last_move]))  # Dodanie układanki i jej ścieżki do kolejki
+                    self.visited_states += 1
 
         end_time = time.time()
-        elapsed_time = end_time - start_time
-        return {
-            "path_length": None,
-            "visited_states": len(visited),
-            "processed_states": len(visited) + len(queue),
-            "max_recursion_depth": max_recursion_depth,
-            "elapsed_time": elapsed_time,
-            "solution": None
-        }  # Jeśli nie udało się znaleźć rozwiązania, zwróć None
+        self.elapsed_time = end_time - start_time
+        return None
