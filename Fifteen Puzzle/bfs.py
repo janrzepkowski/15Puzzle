@@ -37,8 +37,9 @@ class Bfs:
             current_puzzle.move()
             for neighbor in current_puzzle.get_neighbors():  # Loop through the specified search order
                 # Sprawdzenie czy nowa układanka nie została wcześniej odwiedzona
-                if tuple(map(tuple, neighbor.board)) not in self.visited:
-                    self.visited.add(tuple(map(tuple, neighbor.board)))
+                neighbor_tuple = tuple(map(tuple, neighbor.board))
+                if neighbor_tuple not in self.visited:
+                    self.visited.add(neighbor_tuple)
                     queue.append((neighbor, path + [neighbor.last_move]))  # Dodanie układanki i jej ścieżki do kolejki
                     self.visited_states += 1
 

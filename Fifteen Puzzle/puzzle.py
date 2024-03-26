@@ -39,9 +39,6 @@ class Puzzle:
         new_instance.heuristic = self.heuristic
         return new_instance
 
-    def __hash__(self):
-        return hash(tuple(self.board))
-
     def get_neighbors(self):
         return self.neighbors
 
