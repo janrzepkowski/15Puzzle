@@ -13,13 +13,14 @@ class Puzzle:
         self.columns = len(board[0])
         self.final_board = self.generate_final_board()
         self.last_move = None
-        if strategy == "manh" or strategy == "hammmanh":  # tylko jesli A*
+        if strategy == "manh" or strategy == "hamm":  # tylko jesli A*
             self.strategy = "LURD"  # na sztywno daje wybrana permutacje
             self.heuristic = strategy
         else:
             self.strategy = strategy
             self.heuristic = None
         self.neighbors = []
+        self.depth = 0
 
     def __str__(self):
         puzzle_string = ''
@@ -35,7 +36,8 @@ class Puzzle:
         new_puzzle = copy.deepcopy(self.board)
         new_instance = Puzzle(new_puzzle, self.strategy)
         new_instance.last_move = self.last_move
-        new_instance.priority = self.strategy
+        new_instance.strategy = self.strategy
+        new_instance.depth = self.depth + 1
         new_instance.heuristic = self.heuristic
         return new_instance
 
