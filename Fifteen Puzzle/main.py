@@ -1,4 +1,5 @@
 from puzzle import Puzzle
+from dfs import Dfs
 from bfs import Bfs
 
 def main():
@@ -17,30 +18,25 @@ def main():
     strategy = "LURD"
     puzzle = Puzzle(puzzle_matrix, strategy)
 
-    # Print the initial puzzle matrix
     print("Initial board:")
     print(puzzle)
 
-    # Get the number of misplaced tiles
     print("Number of misplaced tiles:", puzzle.heuristic_hamming())
-
-    # Get the Manhattan distance
     print("Manhattan distance:", puzzle.heuristic_manhattan())
 
-    # Solve the puzzle using BFS
-    bfs_solver = Bfs(puzzle)
-    result = bfs_solver.solve()
+    dfs = Dfs()
+    solution, max_recursion_reached, visited_states, processed_states, elapsed_time = dfs.dfs_solve(puzzle)
 
-    # Print the solution
-    if result:
-        print("Solution:", result["solution"])
-        print("Path length:", result["path_length"])
-        print("Visited states:", result["visited_states"])
-        print("Processed states:", result["processed_states"])
-        print("Max recursion depth:", result["max_recursion_depth"])
-        print("Elapsed time:", result["elapsed_time"])
-    else:
-        print("Puzzle could not be solved.")
+    print("Solution:", solution)
+    print("Max recursion depth:", max_recursion_reached)
+    print("Visited states:", visited_states)
+    print("Processed states:", processed_states)
+    print("Elapsed time:", elapsed_time)
+
+    new_puzzle = puzzle
+    for move in solution:
+        new_puzzle = new_puzzle.swap(move)
+    print(new_puzzle)
 
 if __name__ == "__main__":
     main()
