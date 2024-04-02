@@ -21,6 +21,7 @@ class Puzzle:
             self.heuristic = None
         self.neighbors = []
         self.depth = 0
+        self.parent = None
 
     def __str__(self):
         puzzle_string = ''
@@ -39,7 +40,11 @@ class Puzzle:
         new_instance.strategy = self.strategy
         new_instance.depth = self.depth + 1
         new_instance.heuristic = self.heuristic
+        new_instance.parent = self
         return new_instance
+
+    def __lt__(self, other):
+        return True
 
     def get_neighbors(self):
         return self.neighbors
@@ -118,3 +123,9 @@ class Puzzle:
                     misplaced += 1
 
         return misplaced
+
+    def get_heuristic_cost(self):
+        if self.heuristic == "hamm":
+            return self.heuristic_hamming()
+        else:
+            return self.heuristic_manhattan()

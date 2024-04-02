@@ -1,6 +1,7 @@
 from puzzle import Puzzle
 from dfs import Dfs
 from bfs import Bfs
+from astar import Astar
 
 def main():
     # Read the puzzle from a file
@@ -15,7 +16,7 @@ def main():
         puzzle_matrix.append(list(map(int, line.strip().split())))
 
     # Create a Puzzle object with the parsed puzzle matrix
-    strategy = "LURD"
+    strategy = "manh"  # or "hamm" for Hamming heuristic
     puzzle = Puzzle(puzzle_matrix, strategy)
 
     print("Initial board:")
@@ -24,17 +25,17 @@ def main():
     print("Number of misplaced tiles:", puzzle.heuristic_hamming())
     print("Manhattan distance:", puzzle.heuristic_manhattan())
 
-    dfs = Dfs()
-    solution, max_recursion_reached, visited_states, processed_states, elapsed_time = dfs.dfs_solve(puzzle)
+    asta = Astar(puzzle)
+    result = asta.solve()
 
-    print("Solution:", solution)
-    print("Max recursion depth:", max_recursion_reached)
-    print("Visited states:", visited_states)
-    print("Processed states:", processed_states)
-    print("Elapsed time:", elapsed_time)
+    print("Solution:", result["solution"])
+    print("Path length:", len(result["solution"]))
+    print("Visited states:", result["visited_states"])
+    print("Processed states:", result["processed_states"])
+    print("Elapsed time:", result["elapsed_time"])
 
     new_puzzle = puzzle
-    for move in solution:
+    for move in result["solution"]:
         new_puzzle = new_puzzle.swap(move)
     print(new_puzzle)
 
