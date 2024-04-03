@@ -1,7 +1,6 @@
 from collections import deque
 import time
 
-
 class Bfs:
     def __init__(self, puzzle):
         self.puzzle = puzzle
@@ -13,21 +12,17 @@ class Bfs:
 
     def solve(self):
         start_time = time.time()
-        queue = deque([(self.puzzle, [])])  # Kolejka przechowująca układanki i ich ścieżki
+        queue = deque([(self.puzzle, [])])
         self.visited.add(tuple(map(tuple, self.puzzle.board)))
-        # map(tuple, self.puzzle.board) mapujemy kazdy wiersz planszy na krotke - tuple
-        # tuple(map(tuple, self.puzzle.board)) zamieniamy na krotke krotek, a kazda krotka to jeden wiersz ukladanki
 
         while queue:
-            current_puzzle, path = queue.popleft()  # Pobranie pierwszego elementu z kolejki
+            current_puzzle, path = queue.popleft()
             self.processed_states += 1
 
-            if len(path) > self.max_recursion_reached:
-                self.max_recursion_reached = len(path)
+            self.max_recursion_reached = max(self.max_recursion_reached, len(path))
 
             if current_puzzle.is_solved():
-                end_time = time.time()
-                self.elapsed_time = end_time - start_time
+                self.elapsed_time = time.time() - start_time
                 return {
                     "path_length": len(path),
                     "visited_states": self.visited_states,
@@ -35,16 +30,15 @@ class Bfs:
                     "max_recursion_reached": self.max_recursion_reached,
                     "elapsed_time": self.elapsed_time,
                     "solution": path
-                }  # Jeśli układanka jest rozwiązana, zwróć dodatkowe informacje
+                }
+
             current_puzzle.move()
-            for neighbor in current_puzzle.get_neighbors():  # Loop through the specified search order
-                # Sprawdzenie czy nowa układanka nie została wcześniej odwiedzona
+            for neighbor in current_puzzle.get_neighbors():
                 neighbor_tuple = tuple(map(tuple, neighbor.board))
                 if neighbor_tuple not in self.visited:
                     self.visited.add(neighbor_tuple)
-                    queue.append((neighbor, path + [neighbor.last_move]))  # Dodanie układanki i jej ścieżki do kolejki
+                    queue.append((neighbor, path + [neighbor.last_move]))
                     self.visited_states += 1
 
-        end_time = time.time()
-        self.elapsed_time = end_time - start_time
+        self.elapsed_time = time.time() - start_time
         return None
