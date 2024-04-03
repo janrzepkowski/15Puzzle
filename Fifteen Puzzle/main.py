@@ -1,43 +1,56 @@
+import argparse
 from puzzle import Puzzle
 from dfs import Dfs
 from bfs import Bfs
 from astar import Astar
 
 def main():
-    # Read the puzzle from a file
-    with open('4x4_01_00002.txt', 'r') as file:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("strategy", choices=["bfs", "dfs", "astr"])
+    parser.add_argument("param")
+    parser.add_argument("input_file")
+    parser.add_argument("solution_file")
+    parser.add_argument("stats_file")
+    args = parser.parse_args()
+
+    with open(args.input_file, 'r') as file:
         lines = file.readlines()
 
-    # Parse the puzzle matrix from the file
     puzzle_rows = int(lines[0].split()[0])
     puzzle_columns = int(lines[0].split()[1])
     puzzle_matrix = []
     for line in lines[1:]:
         puzzle_matrix.append(list(map(int, line.strip().split())))
 
-    # Create a Puzzle object with the parsed puzzle matrix
-    strategy = "manh"  # or "hamm" for Hamming heuristic
-    puzzle = Puzzle(puzzle_matrix, strategy)
+    puzzle = Puzzle(puzzle_matrix, args.param)
 
-    print("Initial board:")
-    print(puzzle)
+    result = None
+    if args.strategy == "bfs":
+        bfs = Bfs(puzzle)
+        result = bfs.solve()
+    elif args.strategy == "dfs":
+        dfs = Dfs()
+        result = dfs.dfs_solve(puzzle)
+    elif args.strategy == "astr":
+        astr = Astar(puzzle)
+        result = astr.solve()
 
-    print("Number of misplaced tiles:", puzzle.heuristic_hamming())
-    print("Manhattan distance:", puzzle.heuristic_manhattan())
+    with open(args.solution_file, 'w') as file:
+        if result is None:
+            file.write("-1\n")
+        else:
+            file.write(f"{len(result['solution'])}\n")
+            file.write(' '.join(result['solution']))
 
-    asta = Astar(puzzle)
-    result = asta.solve()
-
-    print("Solution:", result["solution"])
-    print("Path length:", len(result["solution"]))
-    print("Visited states:", result["visited_states"])
-    print("Processed states:", result["processed_states"])
-    print("Elapsed time:", result["elapsed_time"])
-
-    new_puzzle = puzzle
-    for move in result["solution"]:
-        new_puzzle = new_puzzle.swap(move)
-    print(new_puzzle)
+    with open(args.stats_file, 'w') as file:
+        if result is None:
+            file.write("-1\n")
+        else:
+            file.write(f"{len(result['solution'])}\n")
+        file.write(f"{result['visited_states']}\n")
+        file.write(f"{result['processed_states']}\n")
+        file.write(f"{result['max_recursion_reached']}\n")
+        file.write(f"{result['elapsed_time']:.3f}\n")
 
 if __name__ == "__main__":
     main()

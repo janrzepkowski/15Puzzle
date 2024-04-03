@@ -45,5 +45,6 @@ class Astar:
             "solution": path,
             "visited_states": self.visited_states,
             "processed_states": self.processed_states,
+            "max_recursion_reached": len(path),
             "elapsed_time": self.elapsed_time
         }
