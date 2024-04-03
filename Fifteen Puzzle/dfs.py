@@ -1,8 +1,6 @@
 import time
 
-
 class Dfs:
-
     def __init__(self):
         self.visited_states = 1
         self.processed_states = 0
@@ -20,14 +18,12 @@ class Dfs:
         if puzzle.is_solved():
             return self.path
 
-        self.visited[tuple(map(tuple, puzzle.board))] = puzzle.depth # krotka to klucz a wartoscia jest dlugosc sciezki
+        self.visited[tuple(map(tuple, puzzle.board))] = puzzle.depth
         puzzle.move()
 
         for neighbor in puzzle.get_neighbors():
             self.visited_states += 1
-            # Sprawdzenie czy nowa układanka nie została wcześniej odwiedzona
             neighbor_tuple = tuple(map(tuple, neighbor.board))
-            # bez warunku w nawiasie dziala szybciej ale rozwiazanie jest niezgodne z zadana strategia. Do przemyslenia.
             if (neighbor_tuple in self.visited and neighbor.depth < self.visited[neighbor_tuple]) or neighbor_tuple not in self.visited:
                 self.path += neighbor.last_move
                 result = self.solve(neighbor)
@@ -37,7 +33,14 @@ class Dfs:
         return None
 
     def dfs_solve(self, puzzle):
-        star_time = time.time()
-        self.solve(puzzle)
-        self.elapsed_time = time.time() - star_time
-        return self.path, len(self.path), self.visited_states, self.processed_states, self.elapsed_time
+        start_time = time.time()
+        solution = self.solve(puzzle)
+        self.elapsed_time = time.time() - start_time
+        return {
+            "solution": solution,
+            "path_length": len(solution),
+            "visited_states": self.visited_states,
+            "processed_states": self.processed_states,
+            "max_recursion_reached": self.max_recursion_depth,
+            "elapsed_time": self.elapsed_time
+        }
