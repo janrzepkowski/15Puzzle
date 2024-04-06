@@ -19,21 +19,30 @@
 # actual program, using the absolute (or relative) path, for example:
 #  $Progcmd = 'C:\Users\User\15puzzle\bin\solver.exe' (native code)
 #  $Progcmd = 'java -jar C:\Users\User\15puzzle\bin\solver.jar' (executable JAR file)
-#  $Progcmd = python C:\Users\User\15puzzle\bin\solver.py' (Python file)
+# $Progcmd = python C:\Users\User\15puzzle\bin\solver.py' (Python file)
+
+#  How to run?
+#  .\script.ps1 -strategy "bfs" -param "LURD"
 
 param([string]$strategy, [string]$param)
 
-$Progcmd = 'echo program'
+$Progcmd = 'python .\main.py'
 $Orders = @('RDUL', 'RDLU', 'DRUL', 'DRLU', 'LUDR',  'LURD', 'ULDR', 'ULRD')
 $Heuristics = @('hamm', 'manh')
 $InitFilenameRegex = '^[a-zA-Z0-9]+_[0-9]+_[0-9]+.txt$'
 
+$InputDirectory = '.\tested_puzzles'
+$SolDirectory = '.\solutions'
+$StatsDirectory = '.\stats'
+
 function RunProg([string]$strategy, [string]$param) {
-    Get-ChildItem -File | Where-Object { $_.Name -match $InitFilenameRegex } | ForEach-Object {
+    Get-ChildItem -Path $InputDirectory -File | Where-Object { $_.Name -match $InitFilenameRegex } | ForEach-Object {
         $FilenameRoot = '{0}_{1}_{2}' -f $_.BaseName, $strategy, $param.ToLower()
-        $SolFilename = '{0}_sol.txt' -f $FilenameRoot
-        $StatsFilename = '{0}_stats.txt' -f $FilenameRoot
-        Invoke-Expression $('{0} {1} {2} {3} {4} {5}' -f $Progcmd, $strategy, $param, $_.Name, $SolFilename,
+        $InputFileName = $InputDirectory + '\' + $_.Name
+        $SolFilename = '{0}\{1}_sol.txt' -f $SolDirectory, $FilenameRoot
+        $StatsFilename = '{0}\{1}_stats.txt' -f $StatsDirectory, $FilenameRoot
+        Write-Host $InputFileName
+        Invoke-Expression $('{0} {1} {2} {3} {4} {5}' -f $Progcmd, $strategy, $param, $InputFileName, $SolFilename,
                             $StatsFilename)
     }
 }
