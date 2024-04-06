@@ -9,7 +9,7 @@ class Astar:
         self.start_time = 0
 
     def solve(self):
-        self.start_time = time.time()
+        self.start_time = time.time_ns() // 1_000_000
         heap = [(0, self.puzzle)]
         visited = set()
 
@@ -40,7 +40,7 @@ class Astar:
         return path[::-1]
 
     def get_result(self, path):
-        self.elapsed_time = time.time() - self.start_time
+        self.elapsed_time = time.time_ns() // 1_000_000 - self.start_time
         return {
             "solution": path,
             "visited_states": self.visited_states,

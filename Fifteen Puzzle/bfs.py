@@ -11,7 +11,7 @@ class Bfs:
         self.visited = set()
 
     def solve(self):
-        start_time = time.time()
+        start_time = time.time_ns() // 1_000_000
         queue = deque([(self.puzzle, [])])
         self.visited.add(tuple(map(tuple, self.puzzle.board)))
 
@@ -22,7 +22,7 @@ class Bfs:
             self.max_recursion_reached = max(self.max_recursion_reached, len(path))
 
             if current_puzzle.is_solved():
-                self.elapsed_time = time.time() - start_time
+                self.elapsed_time = time.time_ns() // 1_000_000 - start_time
                 return {
                     "path_length": len(path),
                     "visited_states": self.visited_states,
@@ -40,5 +40,5 @@ class Bfs:
                     queue.append((neighbor, path + [neighbor.last_move]))
                     self.visited_states += 1
 
-        self.elapsed_time = time.time() - start_time
+        self.elapsed_time = time.time_ns() // 1_000_000 - start_time
         return None

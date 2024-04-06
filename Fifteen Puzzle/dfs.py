@@ -12,7 +12,7 @@ class Dfs:
     def solve(self, puzzle):
         self.processed_states += 1
 
-        if puzzle.depth > self.max_recursion_depth:
+        if puzzle.detpth > self.max_recursion_depth:
             return None
 
         if puzzle.is_solved():
@@ -33,9 +33,9 @@ class Dfs:
         return None
 
     def dfs_solve(self, puzzle):
-        start_time = time.time()
+        start_time = time.time_ns() // 1_000_000
         solution = self.solve(puzzle)
-        self.elapsed_time = time.time() - start_time
+        self.elapsed_time = time.time_ns() // 1_000_000 - start_time
         return {
             "solution": solution,
             "path_length": len(solution),

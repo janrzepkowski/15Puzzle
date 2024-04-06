@@ -16,6 +16,7 @@ $StatsDirectory = '.\stats'
 
 $StatsOutput = 'Data.csv'
 
+Clear-Content $StatsOutput
 Get-ChildItem -Path $StatsDirectory -File | Where-Object { $_.Name -match $StatsFilenameRegex } | ForEach-Object {
     ECHO $_.Name
     $InputFileName = $StatsDirectory + '\' + $_.Name
