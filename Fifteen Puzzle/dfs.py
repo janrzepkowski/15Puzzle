@@ -12,7 +12,7 @@ class Dfs:
     def solve(self, puzzle):
         self.processed_states += 1
 
-        if puzzle.detpth > self.max_recursion_depth:
+        if puzzle.depth > self.max_recursion_depth:
             return None
 
         if puzzle.is_solved():
