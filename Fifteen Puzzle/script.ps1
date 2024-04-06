@@ -41,7 +41,7 @@ function RunProg([string]$strategy, [string]$param) {
         $InputFileName = $InputDirectory + '\' + $_.Name
         $SolFilename = '{0}\{1}_sol.txt' -f $SolDirectory, $FilenameRoot
         $StatsFilename = '{0}\{1}_stats.txt' -f $StatsDirectory, $FilenameRoot
-        Write-Host $InputFileName
+#         Write-Host $InputFileName
         Invoke-Expression $('{0} {1} {2} {3} {4} {5}' -f $Progcmd, $strategy, $param, $InputFileName, $SolFilename,
                             $StatsFilename)
     }
