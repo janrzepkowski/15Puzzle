@@ -16,6 +16,7 @@ $StatsDirectory = '.\stats'
 
 $StatsOutput = 'Data.csv'
 
+ECHO '' > $StatsOutput
 Clear-Content $StatsOutput
 Get-ChildItem -Path $StatsDirectory -File | Where-Object { $_.Name -match $StatsFilenameRegex } | ForEach-Object {
     ECHO $_.Name
@@ -24,5 +25,5 @@ Get-ChildItem -Path $StatsDirectory -File | Where-Object { $_.Name -match $Stats
     $Line = "{0} {1} {2} {3} " -f [int]$SplitFilename[1], [int]$SplitFilename[2], $SplitFilename[3], $SplitFilename[4]
     $Line += Get-Content $InputFileName
 #     Write-Output $Line
-    $Line >> $StatsOutput
+    ECHO $Line >> $StatsOutput
 }
