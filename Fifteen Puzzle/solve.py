@@ -1,6 +1,7 @@
 import csv
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 DISTANCE = 7
 
@@ -149,3 +150,22 @@ print()
 
 for line in astr_general_avg:
     print(line)
+
+LENGTH = 0
+VISITED_STATES = 1
+PROCESSED_STATES = 2
+MAX_DEPTH = 3
+TIME = 4
+
+barWidth = 0.25
+br1 = np.arange(len(bfs_general_avg))
+br1 = np.subtract(br1, barWidth)
+br2 = [x + barWidth for x in br1]
+br3 = [x + barWidth for x in br2]
+plt.bar(br1, get_data(bfs_general_avg, TIME), color='r', width=barWidth, label='BFS')
+plt.bar(br2, get_data(dfs_general_avg, TIME), color='g', width=barWidth, label='DFS')
+plt.bar(br3, get_data(astr_general_avg, TIME), color='b', width=barWidth, label='A*')
+plt.legend(loc='upper left')
+plt.ylabel("Czas [ms]")
+plt.yscale('log')
+plt.show()
