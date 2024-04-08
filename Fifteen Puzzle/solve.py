@@ -59,7 +59,7 @@ def split_astr(table):
         elif strategy == "hamm":
             hamm.append(temp)
 
-    return [manh, hamm]
+    return [hamm, manh]
 
 
 def general_trim(table):
@@ -116,7 +116,7 @@ def transpose(table):
     return tranposed
 
 
-def bar_plot(ax, data, key, feature, title, ylabel, total_width=0.8, single_width=1, log_scale=False):
+def bar_plot(ax, data, key, feature, title, ylabel, total_width=0.8, single_width=1, legend=True, log_scale=False):
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
     n_bars = len(data)
     bar_width = total_width / n_bars
@@ -124,7 +124,11 @@ def bar_plot(ax, data, key, feature, title, ylabel, total_width=0.8, single_widt
     for i in range(n_bars):
         x_offset = (i - n_bars / 2) * bar_width + bar_width / 2
         ax.bar(x + x_offset, np.array(data[i][feature]), width=bar_width * single_width, color=colors[i % len(colors)])
-    ax.legend(key, loc='upper left')
+    if legend:
+        if len(key) > 4:
+            ax.legend(key, loc='upper left', ncol=2)
+        else:
+            ax.legend(key, loc='upper left')
     ax.set_title(title)
     ax.set_ylabel(ylabel)
     if log_scale:
@@ -181,15 +185,16 @@ astr_t = transpose(astr_strategy_avg)
 
 general_avg = transpose([bfs_general_avg, dfs_general_avg, astr_general_avg])
 
-keys = ['rdul', 'rdlu', 'drul', 'drlu', 'ludr', 'lurd', 'uldr', 'ulrd']
+keys = ['RDUL', 'RDLU', 'DRUL', 'DRLU', 'LUDR', 'LURD', 'ULDR', 'ULRD']
+metric = ['Hamming', 'Manhattan']
 LABELS = ['Długość rozwiązania', 'Stany odwiedzone', 'Stany przetworzone', 'Maksymalne głębokość', 'Czas [ms]']
 params = [LENGTH, VISITED_STATES, PROCESSED_STATES, MAX_DEPTH, TIME]
 
 axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 10))[1]
-bar_plot(axes[0][0], general_avg, ['BFS', 'DFS', 'ASTR'], LENGTH, "Ogółem", LABELS[0], total_width=.8, log_scale=True)
-bar_plot(axes[0][1], astr_t, ['manh', 'hamm'], LENGTH, "A*", LABELS[0], total_width=.8)
+bar_plot(axes[0][0], general_avg, ['BFS', 'DFS', 'ASTR'], LENGTH, "Ogółem", LABELS[0], total_width=.8)
+bar_plot(axes[0][1], astr_t, metric, LENGTH, "A*", LABELS[0], total_width=.8)
 bar_plot(axes[1][0], bfs_t, keys, LENGTH, "BFS", LABELS[0], total_width=.8)
-bar_plot(axes[1][1], dfs_t, keys, LENGTH, "DFS", LABELS[0], total_width=.8, log_scale=True)
+bar_plot(axes[1][1], dfs_t, keys, LENGTH, "DFS", LABELS[0], total_width=.8, log_scale=True, legend=False)
 
 plt.tight_layout()
 plt.savefig('charts/Length.png')
@@ -197,9 +202,9 @@ plt.savefig('charts/Length.png')
 axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 10))[1]
 bar_plot(axes[0][0], general_avg, ['BFS', 'DFS', 'ASTR'], VISITED_STATES, "Ogółem", LABELS[1], total_width=.8,
          log_scale=True)
-bar_plot(axes[0][1], astr_t, ['manh', 'hamm'], VISITED_STATES, "A*", LABELS[1], total_width=.8)
+bar_plot(axes[0][1], astr_t, metric, VISITED_STATES, "A*", LABELS[1], total_width=.8)
 bar_plot(axes[1][0], bfs_t, keys, VISITED_STATES, "BFS", LABELS[1], total_width=.8)
-bar_plot(axes[1][1], dfs_t, keys, VISITED_STATES, "DFS", LABELS[1], total_width=.8, log_scale=True)
+bar_plot(axes[1][1], dfs_t, keys, VISITED_STATES, "DFS", LABELS[1], total_width=.8, log_scale=True, legend=False)
 
 plt.tight_layout()
 plt.savefig('charts/Visited.png')
@@ -207,27 +212,27 @@ plt.savefig('charts/Visited.png')
 axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 10))[1]
 bar_plot(axes[0][0], general_avg, ['BFS', 'DFS', 'ASTR'], PROCESSED_STATES, "Ogółem", LABELS[2], total_width=.8,
          log_scale=True)
-bar_plot(axes[0][1], astr_t, ['manh', 'hamm'], PROCESSED_STATES, "A*", LABELS[2], total_width=.8)
+bar_plot(axes[0][1], astr_t, metric, PROCESSED_STATES, "A*", LABELS[2], total_width=.8)
 bar_plot(axes[1][0], bfs_t, keys, PROCESSED_STATES, "BFS", LABELS[2], total_width=.8)
-bar_plot(axes[1][1], dfs_t, keys, PROCESSED_STATES, "DFS", LABELS[2], total_width=.8, log_scale=True)
+bar_plot(axes[1][1], dfs_t, keys, PROCESSED_STATES, "DFS", LABELS[2], total_width=.8, log_scale=True, legend=False)
 
 plt.tight_layout()
 plt.savefig('charts/Processed.png')
 
 axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 10))[1]
 bar_plot(axes[0][0], general_avg, ['BFS', 'DFS', 'ASTR'], MAX_DEPTH, "Ogółem", LABELS[3], total_width=.8)
-bar_plot(axes[0][1], astr_t, ['manh', 'hamm'], MAX_DEPTH, "A*", LABELS[3], total_width=.8)
+bar_plot(axes[0][1], astr_t, metric, MAX_DEPTH, "A*", LABELS[3], total_width=.8)
 bar_plot(axes[1][0], bfs_t, keys, MAX_DEPTH, "BFS", LABELS[3], total_width=.8)
-bar_plot(axes[1][1], dfs_t, keys, MAX_DEPTH, "DFS", LABELS[3], total_width=.8)
+bar_plot(axes[1][1], dfs_t, keys, MAX_DEPTH, "DFS", LABELS[3], total_width=.8, legend=False)
 
 plt.tight_layout()
 plt.savefig('charts/Depth.png')
 
 axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 10))[1]
 bar_plot(axes[0][0], general_avg, ['BFS', 'DFS', 'ASTR'], TIME, "Ogółem", LABELS[4], total_width=.8, log_scale=True)
-bar_plot(axes[0][1], astr_t, ['manh', 'hamm'], TIME, "A*", LABELS[4], total_width=.8)
+bar_plot(axes[0][1], astr_t, metric, TIME, "A*", LABELS[4], total_width=.8)
 bar_plot(axes[1][0], bfs_t, keys, TIME, "BFS", LABELS[4], total_width=.8)
-bar_plot(axes[1][1], dfs_t, keys, TIME, "DFS", LABELS[4], total_width=.8, log_scale=True)
+bar_plot(axes[1][1], dfs_t, keys, TIME, "DFS", LABELS[4], total_width=.8, log_scale=True, legend=False)
 
 plt.tight_layout()
 plt.savefig('charts/Time.png')
