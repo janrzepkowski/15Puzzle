@@ -194,7 +194,7 @@ axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 10))[1]
 bar_plot(axes[0][0], general_avg, ['BFS', 'DFS', 'ASTR'], LENGTH, "Ogółem", LABELS[0], total_width=.8)
 bar_plot(axes[0][1], astr_t, metric, LENGTH, "A*", LABELS[0], total_width=.8)
 bar_plot(axes[1][0], bfs_t, keys, LENGTH, "BFS", LABELS[0], total_width=.8)
-bar_plot(axes[1][1], dfs_t, keys, LENGTH, "DFS", LABELS[0], total_width=.8, log_scale=True, legend=False)
+bar_plot(axes[1][1], dfs_t, keys, LENGTH, "DFS", LABELS[0], total_width=.8, legend=False)
 
 plt.tight_layout()
 plt.savefig('charts/Length.png')
