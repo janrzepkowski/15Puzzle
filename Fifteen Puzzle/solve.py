@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 
 DISTANCE = 7
 
-
 # categories indexes
 # rdul = 0
 # rdlu = 1
@@ -19,37 +18,34 @@ DISTANCE = 7
 # manh = 0
 # hamm = 1
 
+DICT = {
+    "rdul": 0,
+    "rdlu": 1,
+    "drul": 2,
+    "drlu": 3,
+    "ludr": 4,
+    "lurd": 5,
+    "uldr": 6,
+    "ulrd": 7
+}
+
+# rdul = []
+# rdlu = []
+# drul = []
+# drlu = []
+# ludr = []
+# lurd = []
+# uldr = []
+# ulrd = []
+
 
 def split_data(table):
-    rdul = []
-    rdlu = []
-    drul = []
-    drlu = []
-    ludr = []
-    lurd = []
-    uldr = []
-    ulrd = []
+    t = [[] for _ in range(8)]
     for row in table:
         strategy = row[3]
         temp = [row[0], row[4], row[5], row[6], row[7], row[8]]
-        if strategy == "rdul":
-            rdul.append(temp)
-        elif strategy == "rdlu":
-            rdlu.append(temp)
-        elif strategy == "drul":
-            drul.append(temp)
-        elif strategy == "drlu":
-            drlu.append(temp)
-        elif strategy == "ludr":
-            ludr.append(temp)
-        elif strategy == "lurd":
-            lurd.append(temp)
-        elif strategy == "uldr":
-            uldr.append(temp)
-        elif strategy == "ulrd":
-            ulrd.append(temp)
-
-    return [rdul, rdlu, drul, drlu, ludr, lurd, uldr, ulrd]
+        t[DICT[strategy]].append(temp)
+    return t
 
 
 def split_astr(table):
@@ -179,7 +175,6 @@ PROCESSED_STATES = 2
 MAX_DEPTH = 3
 TIME = 4
 
-
 dfs_t = transpose(dfs_strategy_avg)
 bfs_t = transpose(bfs_strategy_avg)
 astr_t = transpose(astr_strategy_avg)
@@ -189,7 +184,6 @@ general_avg = transpose([bfs_general_avg, dfs_general_avg, astr_general_avg])
 keys = ['rdul', 'rdlu', 'drul', 'drlu', 'ludr', 'lurd', 'uldr', 'ulrd']
 LABELS = ['Długość rozwiązania', 'Stany odwiedzone', 'Stany przetworzone', 'Maksymalne głębokość', 'Czas [ms]']
 params = [LENGTH, VISITED_STATES, PROCESSED_STATES, MAX_DEPTH, TIME]
-
 
 axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 10))[1]
 bar_plot(axes[0][0], general_avg, ['BFS', 'DFS', 'ASTR'], LENGTH, "Ogółem", LABELS[0], total_width=.8, log_scale=True)
@@ -201,7 +195,8 @@ plt.tight_layout()
 plt.savefig('charts/Length.png')
 
 axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 10))[1]
-bar_plot(axes[0][0], general_avg, ['BFS', 'DFS', 'ASTR'], VISITED_STATES, "Ogółem", LABELS[1], total_width=.8, log_scale=True)
+bar_plot(axes[0][0], general_avg, ['BFS', 'DFS', 'ASTR'], VISITED_STATES, "Ogółem", LABELS[1], total_width=.8,
+         log_scale=True)
 bar_plot(axes[0][1], astr_t, ['manh', 'hamm'], VISITED_STATES, "A*", LABELS[1], total_width=.8)
 bar_plot(axes[1][0], bfs_t, keys, VISITED_STATES, "BFS", LABELS[1], total_width=.8)
 bar_plot(axes[1][1], dfs_t, keys, VISITED_STATES, "DFS", LABELS[1], total_width=.8, log_scale=True)
@@ -210,7 +205,8 @@ plt.tight_layout()
 plt.savefig('charts/Visited.png')
 
 axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 10))[1]
-bar_plot(axes[0][0], general_avg, ['BFS', 'DFS', 'ASTR'], PROCESSED_STATES, "Ogółem", LABELS[2], total_width=.8, log_scale=True)
+bar_plot(axes[0][0], general_avg, ['BFS', 'DFS', 'ASTR'], PROCESSED_STATES, "Ogółem", LABELS[2], total_width=.8,
+         log_scale=True)
 bar_plot(axes[0][1], astr_t, ['manh', 'hamm'], PROCESSED_STATES, "A*", LABELS[2], total_width=.8)
 bar_plot(axes[1][0], bfs_t, keys, PROCESSED_STATES, "BFS", LABELS[2], total_width=.8)
 bar_plot(axes[1][1], dfs_t, keys, PROCESSED_STATES, "DFS", LABELS[2], total_width=.8, log_scale=True)
