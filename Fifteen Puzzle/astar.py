@@ -1,5 +1,5 @@
 import time
-import heapq
+from queue import PriorityQueue
 
 class Astar:
     def __init__(self, puzzle):
@@ -10,11 +10,12 @@ class Astar:
 
     def solve(self):
         self.start_time = time.time_ns() // 1_000_000
-        heap = [(0, self.puzzle)]
+        queue = PriorityQueue()
+        queue.put((0, self.puzzle))
         visited = set()
 
-        while heap:
-            _, current_puzzle = heapq.heappop(heap)
+        while queue:
+            _, current_puzzle = queue.get()
             self.processed_states += 1
             visited.add(tuple(map(tuple, current_puzzle.board)))
 
@@ -28,7 +29,7 @@ class Astar:
                 neighbor_tuple = tuple(map(tuple, neighbor.board))
                 if neighbor_tuple not in visited:
                     cost = neighbor.depth + neighbor.get_heuristic_cost()
-                    heapq.heappush(heap, (cost, neighbor))
+                    queue.put((cost, neighbor))
 
         return None
 
